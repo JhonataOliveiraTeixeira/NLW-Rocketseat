@@ -5,6 +5,8 @@ import nodemailer from "nodemailer";
 import z from "zod";
 import { getMailClient } from "../lib/email";
 import { prisma } from "../lib/prisma";
+import { ClienteError } from "../erros/client-error";
+import { env } from "../env";
 
 export async function createTrip(app: FastifyInstance) {
     app.withTypeProvider<ZodTypeProvider>().post('/trips', {
@@ -22,11 +24,11 @@ export async function createTrip(app: FastifyInstance) {
         const { destination, ends_st, start_at, owner_name, owner_email, emails_to_invite } = request.body
 
         if (dayjs(start_at).isBefore(new Date())) {
-            throw new Error("Invalid trip start date")
+            throw new ClienteError("Invalid trip start date")
         }
 
         if (dayjs(ends_st).isBefore(start_at)) {
-            throw new Error("Invalid trip ends date")
+            throw new ClienteError("Invalid trip ends date")
         }
 
 
@@ -53,8 +55,8 @@ export async function createTrip(app: FastifyInstance) {
                 }
             }
         })
-        
-        const confirmationLink = `http://localhost:3333/trips/${trip.id}/confirm`
+
+        const confirmationLink = `${env.API_BASE_URL}/trips/${trip.id}/confirm`
 
         const emailClient = await getMailClient()
 

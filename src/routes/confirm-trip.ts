@@ -4,6 +4,7 @@ import nodemailer from "nodemailer"
 import z from "zod"
 import { getMailClient } from "../lib/email"
 import { prisma } from "../lib/prisma"
+import { env } from "../env"
 
 export async function confirmtrip(app: FastifyInstance) {
     app.withTypeProvider<ZodTypeProvider>().get(
@@ -44,7 +45,7 @@ export async function confirmtrip(app: FastifyInstance) {
 
             await Promise.all(
                 trip.participants.map(async (participant) => {
-                    const confirmationLink = `http://localhost:3333/participants/${participant.id}/confirm`
+                    const confirmationLink = `${env.API_BASE_URL}/participants/${participant.id}/confirm`
                     const message = await emailClient.sendMail({
                         from: {
                             name: "Equipe plann.er",
